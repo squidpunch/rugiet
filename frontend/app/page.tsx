@@ -1,7 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+
+interface Currency {
+  code: string;
+  name: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export default function Home() {
   const [from, setFrom] = useState('USD');
@@ -10,10 +17,31 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<any>(null);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [currenciesLoading, setCurrenciesLoading] = useState(true);
 
   const isFormValid = useMemo(() => {
     return from !== to && amount !== '' && parseFloat(amount) > 0;
   }, [from, to, amount]);
+
+  useEffect(() => {
+    fetchCurrencies();
+  }, []);
+
+  const fetchCurrencies = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/currencies`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch currencies');
+      }
+      const data = await response.json();
+      setCurrencies(data);
+    } catch (err) {
+      console.error('Failed to load currencies:', err);
+    } finally {
+      setCurrenciesLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +52,7 @@ export default function Home() {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:3000/api/v1/convert', {
+      const response = await fetch(`${API_URL}/api/v1/convert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,52 +80,10 @@ export default function Home() {
     }
   };
 
-  const currencies = [
-    { code: "AUD", name: "Australian Dollar" },
-    { code: "BGN", name: "Bulgarian Lev" },
-    { code: "BRL", name: "Brazilian Real" },
-    { code: "CAD", name: "Canadian Dollar" },
-    { code: "CHF", name: "Swiss Franc" },
-    { code: "CNY", name: "Chinese Renminbi Yuan" },
-    { code: "CZK", name: "Czech Koruna" },
-    { code: "DKK", name: "Danish Krone" },
-    { code: "EUR", name: "Euro" },
-    { code: "GBP", name: "British Pound" },
-    { code: "HKD", name: "Hong Kong Dollar" },
-    { code: "HUF", name: "Hungarian Forint" },
-    { code: "IDR", name: "Indonesian Rupiah" },
-    { code: "ILS", name: "Israeli New Shekel" },
-    { code: "INR", name: "Indian Rupee" },
-    { code: "ISK", name: "Icelandic Króna" },
-    { code: "JPY", name: "Japanese Yen" },
-    { code: "KRW", name: "South Korean Won" },
-    { code: "MXN", name: "Mexican Peso" },
-    { code: "MYR", name: "Malaysian Ringgit" },
-    { code: "NOK", name: "Norwegian Krone" },
-    { code: "NZD", name: "New Zealand Dollar" },
-    { code: "PHP", name: "Philippine Peso" },
-    { code: "PLN", name: "Polish Złoty" },
-    { code: "RON", name: "Romanian Leu" },
-    { code: "SEK", name: "Swedish Krona" },
-    { code: "SGD", name: "Singapore Dollar" },
-    { code: "THB", name: "Thai Baht" },
-    { code: "TRY", name: "Turkish Lira" },
-    { code: "USD", name: "United States Dollar" },
-    { code: "ZAR", name: "South African Rand" }
-  ];
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex w-full max-w-xl flex-col gap-4 px-6 py-8">
         <div className="text-center">
-          <div className="mb-2 flex justify-end">
-            <Link
-              href="/conversions"
-              className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              View Recent Conversions →
-            </Link>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight text-black dark:text-zinc-50">
             Currency Converter
           </h1>
@@ -116,13 +102,18 @@ export default function Home() {
               name="from"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-base text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              disabled={currenciesLoading}
+              className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-base text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             >
-              {currencies.map((currency) => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.code} - {currency.name}
-                </option>
-              ))}
+              {currenciesLoading ? (
+                <option>Loading currencies...</option>
+              ) : (
+                currencies.map((currency) => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.code} - {currency.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -135,13 +126,18 @@ export default function Home() {
               name="to"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-base text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              disabled={currenciesLoading}
+              className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-base text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             >
-              {currencies.map((currency) => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.code} - {currency.name}
-                </option>
-              ))}
+              {currenciesLoading ? (
+                <option>Loading currencies...</option>
+              ) : (
+                currencies.map((currency) => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.code} - {currency.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -164,10 +160,10 @@ export default function Home() {
 
           <button
             type="submit"
-            disabled={!isFormValid || loading}
+            disabled={!isFormValid || loading || currenciesLoading}
             className="mt-2 rounded-md bg-black px-6 py-2.5 text-base font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-50 dark:text-black dark:hover:bg-zinc-200"
           >
-            {loading ? 'Converting...' : 'Convert'}
+            {loading ? 'Converting...' : currenciesLoading ? 'Loading...' : 'Convert'}
           </button>
 
           {from === to && (
@@ -182,6 +178,14 @@ export default function Home() {
             {error}
           </div>
         )}
+          <div className="mb-2 flex justify-end">
+            <Link
+              href="/conversions"
+              className="text-sm font-medium text-zinc-600 hover:text-black dark:text-zinc-400 dark:hover:text-zinc-50"
+            >
+              View Recent Conversions →
+            </Link>
+          </div>
 
         {result && (
           <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">

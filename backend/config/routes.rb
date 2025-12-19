@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       post 'convert', to: 'conversions#convert'
       get 'conversions', to: 'conversions#index'
+      get 'currencies', to: 'currencies#index'
     end
   end
 
