@@ -23,9 +23,8 @@ class ExchangeRateFetcherService
       @current_exchange_rate.update(rate: @rate_data["rates"][@target], date: @rate_data["date"])
 
       ## TODO optimization we could do the reverse data record at this time as well....
-
-      @current_exchange_rate
     end
+    @current_exchange_rate
   end
 
   private
