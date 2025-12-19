@@ -5,8 +5,21 @@ class ExchangeRate < ApplicationRecord
   validates :base, :target, presence: true
   validates :date, presence: true
   validates :rate, presence: true, numericality: { greater_than: 0 }
+  validates :base, uniqueness: { scope: [:target, :date], message: "exchange rate already exists for this currency pair on this date" }
 
   validate :base_and_target_different
+
+  # Scope to find cached rates for a currency pair (updated within last hour)
+  scope :cached_for_pair, ->(base, target) {
+    where(base: base, target: target)
+      .where('updated_at >= ?', 1.hour.ago)
+      .order(updated_at: :desc)
+  }
+
+  # Get the latest cached rate for a currency pair
+  def self.latest_cached_rate(base, target)
+    cached_for_pair(base, target).first
+  end
 
   private
 

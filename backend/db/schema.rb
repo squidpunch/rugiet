@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_19_155537) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_19_171957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,6 +29,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_19_155537) do
     t.decimal "rate", precision: 10, scale: 6, null: false
     t.string "target", limit: 3, null: false
     t.datetime "updated_at", null: false
-    t.index ["base", "target", "date"], name: "index_exchange_rates_on_base_and_target_and_date"
+    t.index ["base", "target", "date"], name: "index_exchange_rates_on_base_and_target_and_date", unique: true
   end
 end
