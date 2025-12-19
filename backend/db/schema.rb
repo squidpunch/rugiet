@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_19_171957) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_19_193942) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "conversions", force: :cascade do |t|
+    t.decimal "amount", precision: 15, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.decimal "exchange_rate", precision: 10, scale: 6, null: false
+    t.datetime "rate_fetched_time", null: false
+    t.string "source", limit: 3, null: false
+    t.decimal "source_amount", precision: 15, scale: 2, null: false
+    t.string "target", limit: 3, null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "currencies", force: :cascade do |t|
     t.string "code", limit: 3, null: false
