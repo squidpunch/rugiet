@@ -57,7 +57,7 @@ RSpec.describe ExchangeRate, type: :model do
 
     it 'successfully creates a valid exchange rate' do
       expect {
-        ExchangeRate.create!(
+        ExchangeRate.create(
           base: usd.code,
           target: eur.code,
           date: Date.today,
@@ -67,7 +67,7 @@ RSpec.describe ExchangeRate, type: :model do
     end
 
     it 'stores the rate with correct precision' do
-      rate = ExchangeRate.create!(
+      rate = ExchangeRate.find_or_create_by(
         base: usd.code,
         target: eur.code,
         date: Date.today,

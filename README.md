@@ -126,3 +126,9 @@ docker-compose down
 docker-compose down -v
 ```
 
+### Running Tests
+
+```bash
+# run the full back end suite
+docker-compose exec -T backend rspec
+```

@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe ExchangeRateFetcherService do
+    before do
+        ExchangeRate.destroy_all
+    end
 
     describe "#get_exchange_rate" do
         context "when there is no exchange rate object" do
@@ -43,14 +46,6 @@ RSpec.describe ExchangeRateFetcherService do
                 expect(ExchangeRate.first.updated_at).to be > Time.now - 10.minutes
             end
         end
-
-
-        # it "should return the converted amount" do
-        #     # Assuming the conversion rate for USD to EUR is 0.85
-        #     service = ConversionRequestService.new("USD", "EUR", 100)
-        #     result = service.convert
-        #     expect(result).to eq(85.0)
-        # end
     end
 
 end
