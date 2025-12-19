@@ -4,7 +4,6 @@ RSpec.describe ExchangeRate, type: :model do
   let(:eur) { Currency.find_or_create_by!(code: 'EUR') { |c| c.name = 'Euro' } }
   let(:usd) { Currency.find_or_create_by!(code: 'USD') { |c| c.name = 'US Dollar' } }
 
-
   describe 'validations' do
 
     context 'presence of attributes' do
@@ -27,7 +26,8 @@ RSpec.describe ExchangeRate, type: :model do
         expect(exchange_rate).not_to be_valid
         expect(exchange_rate.errors[:base_currency]).to include('must exist')
       end
-        it 'is invalid with a target currency code that does not exist' do
+
+      it 'is invalid with a target currency code that does not exist' do
         exchange_rate = ExchangeRate.new(
           base: eur.code,
           target: 'XXX',
@@ -48,7 +48,6 @@ RSpec.describe ExchangeRate, type: :model do
         )
       expect(exchange_rate).not_to be_valid
     end
-
   end
 
   describe 'creating records' do
